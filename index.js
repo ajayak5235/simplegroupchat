@@ -28,7 +28,7 @@ app.get('/', (req, res) => {
 app.post('/', (req, res) => {
     console.log(req.body.username);
     console.log(req.body.message);
-    fs.writeFile("username.txt", `${req.body.username}: ${req.body.message}`, { flag: 'a' }, (err) => {
+    fs.writeFile("username.txt", `${req.body.username}: ${req.body.message}/n`, { flag: 'a' }, (err) => {
         if (err) {
             console.error(err);
         } else {
