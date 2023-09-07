@@ -1,37 +1,57 @@
+
 const express = require('express');
 const bodyParser = require('body-parser');
-
+const fs = require('fs');
 const app = express();
 
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.static('public'));
 
-app.use('/login', (req, res, next) => {
+app.get('/', (req, res) => {
+    fs.readFile('username.txt', (err, data) => {
+        if (err) {
+            console.error(err);
+            data = 'No chat Exists';
+        }
+        res.send(`
+            ${data}
+            <form action="/" method="POST" onsubmit="document.getElementById('username').value = localStorage.getItem('username')">
+                <input type="text" name="message" id="message">
+                <input type="text" name="username" id="username">
+                <br />
+                <button type="submit">send</button>
+            </form>
+        `);
+    });
+});
+
+app.post('/', (req, res) => {
+    console.log(req.body.username);
+    console.log(req.body.message);
+    fs.writeFile("username.txt", `${req.body.username}: ${req.body.message}`, { flag: 'a' }, (err) => {
+        if (err) {
+            console.error(err);
+        } else {
+            res.redirect('/');
+        }
+    });
+});
+
+app.get('/login', (req, res) => {
     res.send(`
-    <input id="username" type="text" name"title">
-    <form onsubmit="localStorage.setItem(`{username}`, document.getElementById(`{username}`.value)" action="/product" method="POST">
-
-	
-
-	<button type="submit">add</button>
-
-</form>
+        <form action="/login" method="POST" onsubmit="localStorage.setItem('username', document.getElementById('username').value)">
+            <input type="text" name="username" id="username">
+            <br />
+            <button type="submit">Login</button>
+        </form>
     `);
 });
 
-app.use('/username', (req, res, next) => {
-    console.log(req.body);
-    res.redirect('/');
+app.post('/login', (req, res) => {
+    const username = req.body.username;
+    // Store the username in localStorage
+    res.send(`<script>localStorage.setItem('username', '${username}'); window.location.href = '/';</script>`);
 });
 
-app.use('/', (req, res, next) => {
-    res.send('<lable>No chat Exist</lable><br><input type="text" name="productName"> <br> <button type="submit">send</button>');
-});
-
-app.listen(3000, () => {
-    console.log('Server is running on port 3000');
-});
-
-
-
-
-
+app.listen(3000)
+    
